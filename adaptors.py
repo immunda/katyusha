@@ -3,7 +3,7 @@
 
 class Adaptor(object):
 
-    def __init__(self, model, child=False, readonly=False):
+    def __init__(self, model, child=False, readonly=False, *args, **kwargs):
         self.model = model
         self.child = child
         self.readonly = readonly
@@ -27,6 +27,16 @@ class Adaptor(object):
             'errors': error_dict,
         }
         return content
+
+    def munge(self, data):
+        munged_data = data
+
+        for field in data:
+            method_name = 'munge_%s' % field
+            if hasattr(self, method_name):
+                method = getattr(self, method_name)
+                munged_data[field] = method(data[field])
+        return munged_data
 
     @property
     def readable_fields(self):
