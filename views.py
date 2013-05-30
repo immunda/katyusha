@@ -8,6 +8,11 @@ from mongoengine.queryset import DoesNotExist
 
 class ApiView(MethodView):
 
+    def dispatch_request(self, *args, **kwargs):
+        if request.accept_mimetypes['application/json'] == 0:
+            return self.not_acceptable()
+        return super(ApiView, self).dispatch_request(*args, **kwargs)
+
     # Successful
     def created(self):
         return Response(status=201)
@@ -21,6 +26,9 @@ class ApiView(MethodView):
 
     def not_found(self):
         return Response(status=404)
+
+    def not_acceptable(self):
+        return Response(status=406)
 
     def unsupported_media_type(self):
         return Response(status=415)
