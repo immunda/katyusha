@@ -11,6 +11,7 @@ def json_response(data=None, status_code=200, headers=None, skip_encoding=False)
 
     response = Response(json_data, status_code, mimetype='application/json')
 
+    response.headers['Access-Control-Allow-Origin'] = '*'
     if headers is not None:
         for header, value in headers:
             response.headers[header] = value
