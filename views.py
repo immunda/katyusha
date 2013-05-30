@@ -3,6 +3,7 @@ from flask.views import MethodView, request
 from flask import Response
 from .util import json_response
 from .models import *
+from mongoengine.queryset import DoesNotExist
 
 
 class ApiView(MethodView):
@@ -39,7 +40,10 @@ class TokenView(ApiView):
         if request.authorization is not None:
             key = request.authorization['username']
             secret = request.authorization['password']
-            consumer = Consumer.objects.get(key=key, secret=secret)
+            try:
+                consumer = Consumer.objects.get(key=key, secret=secret)
+            except DoesNotExist:
+                return self.unauthorized()
             bearer_token = consumer.bearer_token
             if bearer_token.has_expired():
                 bearer_token.renew()
