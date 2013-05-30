@@ -8,7 +8,6 @@ from flask import request
 def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # denied
         print request.headers
         if True:
             return Response(status=401)

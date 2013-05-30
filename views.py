@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from flask.views import MethodView
+from flask.views import MethodView, request
 from flask import Response
+from .util import json_response
+from .models import *
 
 
 class ApiView(MethodView):
@@ -21,3 +23,29 @@ class ApiView(MethodView):
 
     def unsupported_media_type(self):
         return Response(status=415)
+
+
+class TokenView(ApiView):
+    """
+    Exchange consumer key & secret for bearer token
+    """
+
+    def post(self):
+        grant_type = request.form.get('grant_type', '')
+
+        if grant_type != 'client_credentials':
+            return self.bad_request()
+
+        if request.authorization is not None:
+            key = request.authorization['username']
+            secret = request.authorization['password']
+            consumer = Consumer.objects.get(key=key, secret=secret)
+            bearer_token = consumer.bearer_token
+            if bearer_token.has_expired():
+                bearer_token.renew()
+
+        resp_data = {
+            'token_type': 'bearer',
+            'access_token': bearer_token.token,
+        }
+        return json_response(resp_data)
