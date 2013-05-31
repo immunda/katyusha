@@ -17,11 +17,6 @@ class ApiView(MethodView):
             value = maximum
         return value
 
-    def dispatch_request(self, *args, **kwargs):
-        if request.accept_mimetypes['application/json'] == 0:
-            return self.not_acceptable()
-        return super(ApiView, self).dispatch_request(*args, **kwargs)
-
     # Successful
     def created(self):
         return Response(status=201)
