@@ -8,6 +8,15 @@ from mongoengine.queryset import DoesNotExist
 
 class ApiView(MethodView):
 
+    def safe_int(self, get_dict, key, fallback, maximum=None):
+        try:
+            value = int(get_dict.get(key, fallback))
+        except ValueError:
+            value = fallback
+        if maximum is not None and value > maximum:
+            value = maximum
+        return value
+
     def dispatch_request(self, *args, **kwargs):
         if request.accept_mimetypes['application/json'] == 0:
             return self.not_acceptable()
