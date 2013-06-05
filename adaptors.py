@@ -6,13 +6,18 @@ from mongoengine import ValidationError
 
 class Adaptor(object):
 
-    def __init__(self, model, child=False, *args, **kwargs):
+    def __init__(self, model, parent=None, children=None, populate_empty_fields=False, *args, **kwargs):
         self.model = model
-        self.child = child
+        self.children = children
+        self.populate_empty_fields = populate_empty_fields
+        if self.children is not None:
+            for child_name, child_adaptor in self.children.items():
+                child_adaptor.parent = self
+        self.parent = parent
 
     def _format_errors(self, error_fields):
         model_name = self.model._class_name.lower()
-        if self.child:
+        if self.parent is not None:
             error_dict = {}
             for key, value in error_fields.items():
                 error_dict['%s.%s' % (model_name, key)] = value
@@ -21,12 +26,6 @@ class Adaptor(object):
 
         return error_dict
 
-    def unique_error(self):
-        non_unique_message = {
-            'message': "Non-unique values found in .",
-            'errors': error_dict,
-        }
-
     @property
     def fields(self):
         return []
@@ -34,16 +33,24 @@ class Adaptor(object):
     def munge(self, data):
         munged_data = {}
         for field in self.fields:
-            method_name = 'munge_%s' % field
-            if hasattr(self, method_name):
-                method = getattr(self, method_name)
-                munged_data[field] = method(data[field])
-            elif field in data:
-                munged_data[field] = data[field]
+            if self.children is not None and field in self.children:
+                munged_data[field] = self.children[field].munge(data[field])
+            else:
+                method_name = 'munge_%s' % field
+                if hasattr(self, method_name):
+                    method = getattr(self, method_name)
+                    munged_data[field] = method(data[field])
+                elif field in data:
+                    munged_data[field] = data[field]
+                elif self.populate_empty_fields:
+                    munged_data[field] = None
         return munged_data
 
 
 class ReadAdaptor(Adaptor):
+
+    def __init__(self, model, parent=None, children=None, populate_empty_fields=True, *args, **kwargs):
+        super(ReadAdaptor, self).__init__(model, parent, children, populate_empty_fields, *args, **kwargs)
 
     def get_model_instance(self, *args, **kwargs):
         model_name = self.model._class_name.lower()
