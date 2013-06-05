@@ -4,7 +4,7 @@ from .util import json_response
 
 def token_error(message=None):
     if message is None:
-        message = 'Invalid of expired token.'
+        message = 'Invalid or expired token.'
 
     data = {
         'errors': [{

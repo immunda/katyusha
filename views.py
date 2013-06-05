@@ -4,6 +4,7 @@ from flask import Response
 from .util import json_response
 from .models import *
 from mongoengine.queryset import DoesNotExist
+from .decorators import crossdomain
 
 
 class ApiView(MethodView):
@@ -37,12 +38,17 @@ class ApiView(MethodView):
     def unsupported_media_type(self):
         return Response(status=415)
 
+    @crossdomain(origin='*')
+    def options(self, **kwargs):
+        return super(ApiView, self).options()
+
 
 class TokenView(ApiView):
     """
     Exchange consumer key & secret for bearer token
     """
 
+    @crossdomain(origin='*')
     def post(self):
         grant_type = request.form.get('grant_type', '')
 
