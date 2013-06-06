@@ -30,18 +30,22 @@ class Adaptor(object):
     def fields(self):
         return []
 
+    # TODO raise exception if extra data provided
     def munge(self, data):
         munged_data = {}
+        if data is None:
+            return
         for field in self.fields:
             if self.children is not None and field in self.children:
                 munged_data[field] = self.children[field].munge(data[field])
             else:
                 method_name = 'munge_%s' % field
-                if hasattr(self, method_name):
-                    method = getattr(self, method_name)
-                    munged_data[field] = method(data[field])
-                elif field in data:
-                    munged_data[field] = data[field]
+                if field in data:
+                    if hasattr(self, method_name):
+                        method = getattr(self, method_name)
+                        munged_data[field] = method(data[field])
+                    elif field in data:
+                        munged_data[field] = data[field]
                 elif self.populate_empty_fields:
                     munged_data[field] = None
         return munged_data
