@@ -2,6 +2,7 @@
 from mongoengine import *
 from datetime import datetime, timedelta
 import random
+from base64 import b64encode
 
 
 def _generate_hash():
@@ -20,6 +21,10 @@ class BearerToken(Document):
 
     def __unicode__(self):
         return self.token
+
+    @property
+    def b64_token(self):
+        return b64encode(self.token)
 
     def has_expired(self):
         if self.expires_at is not None and datetime.now() >= self.expires_at:
