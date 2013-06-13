@@ -38,7 +38,7 @@ class ApiView(MethodView):
     def unsupported_media_type(self):
         return Response(status=415)
 
-    @crossdomain(origin='*', headers=['*'])
+    @crossdomain(origin='*', headers=['accept', 'origin', 'authorization', 'content-type'])
     def options(self, **kwargs):
         return super(ApiView, self).options()
 
@@ -48,7 +48,7 @@ class TokenView(ApiView):
     Exchange consumer key & secret for bearer token
     """
 
-    @crossdomain(origin='*', headers=['*'])
+    @crossdomain(origin='*', headers=['accept', 'origin', 'authorization', 'content-type'])
     def post(self):
         grant_type = request.form.get('grant_type', '')
 
