@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask.views import MethodView, request
-from flask import Response
+from flask import Response, make_response
 from .util import json_response
 from .models import *
 from mongoengine.queryset import DoesNotExist
@@ -20,23 +20,23 @@ class ApiView(MethodView):
 
     # Successful
     def created(self):
-        return Response(status=201)
+        return Response(' ', status=201)
 
     # Client error
     def bad_request(self):
-        return Response(status=400)
+        return Response(' ', status=400)
 
     def unauthorized(self):
-        return Response(status=401)
+        return Response(' ', status=401)
 
     def not_found(self):
-        return Response(status=404)
+        return Response(' ', status=404)
 
     def not_acceptable(self):
-        return Response(status=406)
+        return Response(' ', status=406)
 
     def unsupported_media_type(self):
-        return Response(status=415)
+        return Response(' ', status=415)
 
     @crossdomain(origin='*', headers=['accept', 'origin', 'authorization', 'content-type'])
     def options(self, **kwargs):
