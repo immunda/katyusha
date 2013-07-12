@@ -3,7 +3,7 @@ from flask import Response
 from functools import wraps
 from flask import request, make_response, current_app
 from .util import json_response
-from codeclubworld.api.models import BearerToken, Consumer
+from .models import BearerToken, Consumer
 from mongoengine.queryset import DoesNotExist
 from base64 import b64decode
 from .errors import token_error
